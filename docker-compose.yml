@@ -1,0 +1,38 @@
+version: "3"
+services:
+  fastapi:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: phone_info:latest
+    container_name: phone_info_fastapi
+    restart: always
+    expose:
+      - "8080"
+    ports:
+     - "8080:8080"
+    volumes:
+      - ./data:/fastapi/data
+    env_file:
+      - docker-fastapi-variables.env
+    depends_on:
+      - redis
+    command: python /fastapi/api/start_fastapi_prod.py
+  redis:
+    image: redis
+    container_name: phone_info_redis
+    expose:
+      - "6379"
+    restart: always
+  workers:
+    image: phone_info:latest
+    container_name: phone_info_worker
+    restart: always
+    volumes:
+      - ./data:/fastapi/data
+    env_file:
+      - docker-fastapi-variables.env
+    depends_on:
+      - redis
+      - fastapi
+    command: ["/bin/bash", "-c", "supervisord -c /usr/src/workers/supervisord.conf -n"]
