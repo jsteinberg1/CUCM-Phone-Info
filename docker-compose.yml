@@ -17,7 +17,7 @@ services:
       - docker-fastapi-variables.env
     depends_on:
       - redis
-    command: python /fastapi/api/start_fastapi_prod.py
+    command: python /fastapi/api/start_fastapi_docker.py
   redis:
     image: redis
     container_name: phone_info_redis
