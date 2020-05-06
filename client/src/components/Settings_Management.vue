@@ -33,7 +33,7 @@
                                 id="input-name"
                                 v-model="formdata.cluster_name"
                                 required
-                                placeholder="Enter cluster friendly name"
+                                placeholder="Enter cluster friendly name (e.g. Cluster1 )"
                         ></b-form-input>
                     </b-form-group>
                     <b-form-group id="input-group-server" label="CUCM (AXL) Server:" label-for="input-server">
@@ -41,7 +41,7 @@
                             id="input-server"
                             v-model="formdata.server"
                             required
-                            placeholder="Enter fully qualified domain name for CUCM server for AXL connection."
+                            placeholder="Enter CUCM publisher (e.g. cucm1.cisco.com )"
                     ></b-form-input>
                 </b-form-group>
                     <b-form-group id="input-group-version" label="CUCM Version:" label-for="input-version">
@@ -52,7 +52,7 @@
                             id="input-username"
                             v-model="formdata.username"
                             required
-                            placeholder="Enter username of dedicated app user."
+                            placeholder="Enter CUCM application userid"
                     ></b-form-input>
                 </b-form-group>
                     <b-form-group id="input-group-pd" label="CUCM Application User Password:" label-for="input-pd">
@@ -61,7 +61,7 @@
                             v-model="formdata.pd"
                             required
                             type="password"
-                            placeholder="Enter password of above app user."
+                            placeholder="Enter password of above user."
                     ></b-form-input>
                 </b-form-group>
                 <b-form-group id="input-group-ssl" label="SSL Certificate">

@@ -57,7 +57,18 @@ def add_cucm_api_data_2_db(axl_phones_list, serviceability_phones_list, cluster_
     for phone in serviceability_phones_list:
         phone_devicename = phone.Name.upper()
         phone_reg_timestamp = datetime.fromtimestamp(phone.TimeStamp)
-        phone_ip = phone.IPAddress.item[0]['IP']
+        
+        try:
+            phone_ip = phone.IPAddress.item[0]['IP']
+        except:
+            logger.error(f"Unable to determine IP for device {phone_devicename}.")
+            logger.debug(phone)
+            phone_ip = ""
+
+        try:
+            phone_model = cisco_mapping.typemodel[str(phone.Model)]   # try to convert phone model enum to friendly name
+        except:
+             phone_model = phone.Model
 
         phone = models.Phone(
             # serviceability fields
@@ -68,7 +79,7 @@ def add_cucm_api_data_2_db(axl_phones_list, serviceability_phones_list, cluster_
             last_seen_reg = current_time,
             cluster	= cluster_name,
             Protocol = phone.Protocol,
-            Model = cisco_mapping.typemodel[str(phone.Model)],
+            Model = phone_model,
 
             # AXL fields
             devicepool = axl_dict[phone_devicename]["devicepool"],

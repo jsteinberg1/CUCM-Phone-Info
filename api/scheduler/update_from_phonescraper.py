@@ -71,7 +71,11 @@ def rq_scrape_phones(cluster: str = None):
 
     logger.info(f"starting phone scrape")    
     for index, phone in enumerate(phones_reg_in_last_24_hours):
-        logger.debug(f"add job for {phone.devicename} {phone.ipv4} - {index} out of {len(phones_reg_in_last_24_hours)}")
+        if phone.ipv4 == '' or phone.ipv4 == None:
+            logger.debug(f"skipping {phone.devicename} because no IP is available - {index} out of {len(phones_reg_in_last_24_hours)}")
+            continue
+        else:
+            logger.debug(f"add job for {phone.devicename} {phone.ipv4} - {index} out of {len(phones_reg_in_last_24_hours)}")
         
         # queue scrape to rq
         q.enqueue(scrape,
