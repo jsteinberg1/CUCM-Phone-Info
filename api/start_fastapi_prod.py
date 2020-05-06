@@ -30,7 +30,7 @@ def create_self_signed_cert():
 
 
 if __name__ == "__main__":  
-    log_level = "info"
+    log_level = os.getenv('LOG_LEVEL')
     reload_state = False
 
     if not os.path.exists(cert_key):
