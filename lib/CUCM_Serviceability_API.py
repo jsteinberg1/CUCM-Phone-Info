@@ -22,9 +22,18 @@ def splitlist(l,n):
 
 
 class CUCM_Serviceability_API(object):
-
+    """Uses Zeep to query CUCM Serviceability API"""
 
     def __init__(self, server: str, username: str, password: str, ssl_verify_cert: bool = True, ssl_ca_trust_file: str = None):
+        """Initializes Zeep Serviceability object
+
+        Arguments:
+            server {str} -- CUCM server name or  IP
+            username {str} -- CUCM username with Serviceability role
+            password {str} -- password for above account
+            ssl_verify_cert {bool} -- Defines whether to validate CUCM SSL certificate (default: {True})
+            ssl_ca_trust_file {str} -- Path to custom SSL cert trust file, should be used to validate self signed or internal CA certs (default: {None})
+        """
         self.username = username
         self.password = password
         self.wsdl = f'https://{server}:8443/realtimeservice2/services/RISService70?wsdl'
@@ -54,6 +63,17 @@ class CUCM_Serviceability_API(object):
 
 
     def get_registered_phones(self, phone_mac_list, querylimit=1000):
+        """Queries CUCM Serviceability for real-time info service data
+
+        Arguments:
+            phone_mac_list {List of MACs} -- list of Phone DeviceNames to use in Serviceability query
+
+        Keyword Arguments:
+            querylimit {int} -- limit of devices (default: {1000})
+
+        Returns:
+            [list] -- List of Serviceability data
+        """
         serviceability_phones_list = []
 
         # split phones into multiple lists if needed

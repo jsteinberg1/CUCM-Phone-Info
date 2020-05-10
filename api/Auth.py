@@ -4,21 +4,38 @@ import logging
 from datetime import datetime, timedelta
 from fastapi import HTTPException
 
-from api.Config import config
+import requests
 
+from api.Config import config
 from api.crud import settings_management
 
 logger = logging.getLogger('api')
 
 class Auth:
+  """Authenticate class used by fastapi
+  """
   def __init__(self):
     self.SECRET_KEY = os.getenv('SECRET_KEY')
     self.ALGORITHM = "HS256"
     self.ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
 
-  def authenticate_user(self, username, password, cluster=None):    # authenticate user against CUCM API
-    import requests
+  def authenticate_user(self, username: str, password: str, cluster: str=None) -> bool:
+    """Authenticates user logins to web interface.
+
+    'localadmin' user is authenticated locally by application, all other usernames authenticate against CUCM API via UDS lookup
+
+    Arguments:
+        username {str} -- user supplied username attempting to login
+        password {str} -- user supplied password attempting to login
+
+    Keyword Arguments:
+        cluster {str} -- name of cluster to authenticate against, currently not using this (default: {None})
+
+    Returns:
+        bool -- True if user authenticated successfully, otherwise False
+    """
+    
     
     if username == "localadmin":
       # authenticate to localadmin account
@@ -32,8 +49,6 @@ class Auth:
         return False
     else:
       # authenticate against CUCM
-
-
       authorized_cucm_users = settings_management.get_all_cucm_users()  # get authorized users from DB
 
       if username in [user_object.userid for user_object in authorized_cucm_users]:
@@ -66,7 +81,16 @@ class Auth:
 
     return False
 
-  def login(self, username, password):
+  def login(self, username: str, password: str):
+    """Processes login request
+
+    Arguments:
+        username {str} -- user supplied username attempting to login
+        password {str} -- user supplied password attempting to login
+
+    Returns:
+        [type] -- response dict
+    """
     result = self.authenticate_user(username, password)
     if result == True:
 
@@ -85,6 +109,17 @@ class Auth:
 
 
   def validate(self, token):
+    """validate token
+
+    Arguments:
+        token {[type]} -- token supplied in fast api request
+
+    Raises:
+        HTTPException: exception passed to fastapi response
+
+    Returns:
+        [type] -- jwt data
+    """
     try:
       data = jwt.decode(token, self.SECRET_KEY)
     except Exception as e:

@@ -9,11 +9,16 @@ from api.crud import settings_management as crud
 from lib.CUCM_Serviceability_API import CUCM_Serviceability_API
 
 class Serviceability_Objects:
+    """Class that stores Serviceability objects for CUCM cluster(s)
+    used by other functions in this application when Serviceability needs to be queried
+    """
     def __init__(self):
+        """Call load_clusters method to load Serviceability objects into memory"""
         self.load_clusters()
         
 
     def load_clusters(self):
+        """Load CUCM cluster(s) data from database and create Serviceability object for each cluster"""
         self.clusters = {}
 
         cucm_clusters = crud.get_cucm_clusters()

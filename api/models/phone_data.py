@@ -8,6 +8,7 @@ from api.db.database import Base
 current_time = datetime.now()
 
 class Phone(Base):
+    """Model used to store AXL/Serviceability data into SQL database"""
     __tablename__ = "phone"
     
     # Serviceability Fields    
@@ -31,6 +32,7 @@ class Phone(Base):
     phonescrape = relationship("PhoneScraper", uselist=False, back_populates="phone")
 
 class PhoneScraper(Base):
+    """Model used to store data scraped from IP Phone web server into SQL database"""
     __tablename__ = "phonescraper"
 
     devicename = Column(String, ForeignKey("phone.devicename"),  primary_key=True)
@@ -80,6 +82,7 @@ class PhoneScraper(Base):
 
 
 class JobStatus(Base):
+    """Model used to store data about CUCM/PHone scrape job sync/task statuses"""
     __bind_key__ = 'syncdata'
     __tablename__ = "jobstatus"
     jobname = Column(String, primary_key=True, index=True)

@@ -6,6 +6,8 @@ from sqlalchemy.orm import relationship
 from api.db.database import Base
 
 class CUCM_Cluster(Base):
+    """Model used to store data about CUCM clusters into SQL DB """
+
     __tablename__ = "cucm_clusters"
 
     id = Column(Integer, primary_key=True)
@@ -19,6 +21,8 @@ class CUCM_Cluster(Base):
 
 
 class Settings(Base):
+    """Model used to store application settings in SQL DB """
+
     __tablename__ = "settings"
 
     id = Column(Integer, primary_key=True)
@@ -27,6 +31,11 @@ class Settings(Base):
 
 
 class CUCM_Users(Base):
+    """Model used to store users from CUCM that are authorized to login to Phone Info application.
+    The process of adding CUCM users to this model is not verified with CUCM.
+    However, authentication of said user will fail if the user is not in CUCM
+    """
+
     __tablename__ = "cucm_users"
 
     userid = Column(String, primary_key=True)

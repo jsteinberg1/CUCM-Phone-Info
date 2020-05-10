@@ -10,6 +10,7 @@ from OpenSSL import crypto, SSL
 logger = logging.getLogger('api')
 
 class ApiConfig:
+    """Configuration class used by Phone Info Application"""
     def __init__(self):
         self.basedir = Path(os.path.abspath(__file__)).parents[1]
         logger.info(f"Basedir is set to {self.basedir}")

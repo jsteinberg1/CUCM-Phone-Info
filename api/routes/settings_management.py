@@ -31,7 +31,16 @@ async def is_auth(token: str = Security(oauth2_scheme)):
   return auth.validate(token)
 
 
-def upload_certificate(cucm_cluster_create: schemas.CUCM_Cluster_Create):
+def upload_certificate(cucm_cluster_create: schemas.CUCM_Cluster_Create) -> str:
+    """Handles upload of trusted cert used by SSL validation
+    Saves cert file in the config.ca_certs_folder
+
+    Arguments:
+        cucm_cluster_create {schemas.CUCM_Cluster_Create} -- CUCM cluster model
+
+    Returns:
+        str -- name of cert file, will later be stored in SQL DB
+    """
     # handle custom certificate
     if cucm_cluster_create.ssl_ca_trust_file != None:
       cert_name = cucm_cluster_create.cluster_name + ".crt"
@@ -45,6 +54,14 @@ def upload_certificate(cucm_cluster_create: schemas.CUCM_Cluster_Create):
 
 
 def read_existing_certificate_file(ssl_ca_trust_file: str):
+  """obtain SSL certificate data by reading contents from disk
+
+  Arguments:
+      ssl_ca_trust_file {str} -- name of cert file to read
+
+  Returns:
+      [type] -- contents of cert file
+  """
   if ssl_ca_trust_file != None:
     file = open(os.path.join(config.ca_certs_folder, ssl_ca_trust_file), 'r')
     return file.read()
@@ -52,8 +69,7 @@ def read_existing_certificate_file(ssl_ca_trust_file: str):
     return None
 
 
-# CUCM Cluster Setting Functions
-
+# CUCM Cluster Setting Functions - used by VueJS to display current cluster list
 @router.get(
   '/cucm',
    summary="Displays cucm cluster data",
@@ -83,6 +99,7 @@ def get_cucm_clusters(*, token: str = Security(is_auth)):
 
     return list_cucm_cluster_schema_obj
 
+# Delete CUCM cluster -  used by VueJS to delete existing CUCM cluster
 @router.delete(
   '/cucm/{id}',
   summary="Deletes specified CUCM Cluster",
@@ -102,7 +119,7 @@ def delete_cucm_cluster(id: int, token: str = Security(is_auth)):
         
         return {"deleted": id}
 
-
+# Create new CUCM cluster - used by VueJS to create new CUCM cluster
 @router.post(
   '/cucm',
   summary="Creates new CUCM cluster entry")
@@ -115,7 +132,9 @@ def create_cucm_cluster(cucm_cluster_create: schemas.CUCM_Cluster_Create, token:
     # Certificate Management
     cert_name = upload_certificate(cucm_cluster_create)
 
+    # attempt to add new CUCM cluster to application
     try:
+        # create new CUCM model
         cucm_cluster = models.CUCM_Cluster(
             cluster_name = cucm_cluster_create.cluster_name,
             server= cucm_cluster_create.server,
@@ -125,6 +144,8 @@ def create_cucm_cluster(cucm_cluster_create: schemas.CUCM_Cluster_Create, token:
             ssl_ca_trust_file = cert_name,
             pd= cucm_cluster_create.pd,
         )
+
+        # write new CUCM cluster to SQL DB
         crud.merge_cucm_cluster(cucm_cluster)
 
     except Exception as e:
@@ -136,20 +157,27 @@ def create_cucm_cluster(cucm_cluster_create: schemas.CUCM_Cluster_Create, token:
         
         time.sleep(1)
         
-        # validate credentials
+        # validate credentials of new cluster
         axl_object = axl_clusters.get_cluster(cucm_cluster_create.cluster_name)
         auth_result = axl_object.authenticateUser(username=cucm_cluster_create.username, password=cucm_cluster_create.pd)
 
         logger.info(f"Auth test result for new cluster is {auth_result}")
 
         if auth_result == False:
+          # authentication failed for new cluster, remove entry from database
           crud.delete_cucm_cluster_name(cluster_name=cucm_cluster_create.cluster_name)
+
+          # reload AXL clusters to remove failed cluster from memory
           axl_clusters.load_clusters()
+
           return {"result": 'failed'}
         else:
+          # AXL authentication succeeded for new cluster, reload serviceability object (to load new serviceability object for new cluster)
           serviceability_clusters.load_clusters()
+
           return {"result": 'success'}
 
+# update CUCM cluster - used by VueJS to modify/edit existing CUCM cluster
 @router.put(
   '/cucm/{id}',
   summary="Updates existing CUCM cluster entry")
@@ -158,8 +186,6 @@ def update_cucm_cluster(cucm_cluster_create: schemas.CUCM_Cluster_Create, token:
     log_object.pd = 'omitted from log'
     logger.info(f" Received request to update existing cucm cluster - {log_object}")
     
-    # TODO ADD Auth test function here
-
     # Certificate Management
     cert_name = upload_certificate(cucm_cluster_create)
 
@@ -196,9 +222,10 @@ def update_cucm_cluster(cucm_cluster_create: schemas.CUCM_Cluster_Create, token:
         return {"result": 'success'}
 
 
+# Accesses and returns all settings data - used by VueJS to display current settings values
 @router.get(
   '/settings',
-  summary="retrives all settings value",
+  summary="retrieves all settings value",
   description="Returns all settings value",
   response_model=dict,
   )
@@ -214,7 +241,7 @@ def get_all_settings(token: str = Security(is_auth)):
    
     return settings_response_dict
 
-
+# Access specific settings value
 @router.get(
   '/settings/{name}',
   summary="retrives Settings value",
@@ -226,7 +253,7 @@ def get_setting(name: str, token: str = Security(is_auth)):
 
     return schemas.Settings(name=name, value=value)
 
-
+# Updates specific setting value
 @router.put(
   '/settings',
    summary="updates Settings value",
@@ -242,7 +269,7 @@ def put_settings(settings: dict, token: str = Security(is_auth)):
 
     return get_all_settings()
 
-
+# Accesses and returns all CUCM authorized users - used by VueJS to display current user list
 @router.get(
   '/cucm_users',
   summary="retrives all authorized cucm_users",
@@ -259,6 +286,7 @@ def get_all_cucm_users(token: str = Security(is_auth)):
     
     return cucm_users_response_list
 
+# adds new user to CUCM authorized user list - used by VueJS to add new user
 @router.post(
   '/cucm_users',
   summary="Adds new user to Authorized CUCM User model",
@@ -272,7 +300,7 @@ def post_cucm_users(cucm_user: schemas.CUCM_Users, token: str = Security(is_auth
     
     return "processed, poll users for verification"
 
-  
+# removes existing user from CUCM authorized user list - used by VueJS to remove CUCM authorized user
 @router.delete(
   '/cucm_users/{userid}',
   summary="Adds new user to Authorized CUCM User model",
@@ -288,6 +316,7 @@ class UpdatePWRequest(BaseModel):
   current: str
   new: str
 
+# Updates 'localadmin' password - used by VueJS to change password
 @router.put(
   '/updatepw',
    summary="updates localadmin password value",

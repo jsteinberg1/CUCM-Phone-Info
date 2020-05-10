@@ -9,7 +9,20 @@ from bs4 import BeautifulSoup
 from api.models.phone_data import PhoneScraper
 
 
-def allDetails(ip: str, model: str = None):
+def allDetails(ip: str, model: str = None) -> PhoneScraper:
+    """Use BeautifulSoup to scrape data from IP Phone built-in web server
+
+    Arguments:
+        ip {str} -- IP address of IP phone
+        model {str} -- Model of IP phone (default: {None})
+
+    Raises:
+        ConnectionRefusedError: used if unable to reach phone web page (phone is off, web server turned off, ACL, etc)
+        NameError: [description]
+
+    Returns:
+        PhoneScraper -- returns object
+    """
     
     current_time = datetime.now()
     headers = {}
@@ -231,59 +244,3 @@ def allDetails(ip: str, model: str = None):
     phone_scrape_data.date_modified = current_time
 
     return(phone_scrape_data)
-
-
-def itlCheck(phone):
-    ITL = ''
-    date = ''
-    mac = ''
-    model= ''
-    TFTP = ''
-    headers = {}
-    requests_time = 1
-    status_url = "http://" + phone + "/CGI/Java/Serviceability?adapter=device.settings.status.messages"
-
-
-    try:
-        status_response = requests.request("GET", status_url, headers=headers, timeout=requests_time)
-    except requests.exceptions.RequestException as e:  # This is the correct syntax
-        raise (f"unable to connect to {phone}")
-
-
-    status_soup = BeautifulSoup(status_response.text, features="lxml")
-    status_text = status_soup.get_text('_')
-
-    mac = re.findall('( SEP.{12} )', status_text)
-    if len(mac) == 1: mac = mac[0].strip()
-
-    model = re.findall('CP-\d{4}', status_text)
-    if len(model)==1: # only one model found
-        model = model[0].replace('CP-','')
-
-    if model in ['7962','7942']:
-        statuses = (re.findall(r'(\d{1,2}:..:..[ap]) ([^(_)]*)', status_text))
-        for status in statuses:
-            for x in ['trust', 'itl']:
-                if x in status[1].lower():
-                    ITL = status[1]
-                    date = status[0]
-            if 'tftp' in status[1].lower():
-                TFTP = status[1]
-    else:
-        statuses = re.findall(r'(..:..:...m ..\/..\/...)(\n)([^(_)]*)', status_text)
-        for status in statuses:
-            for x in ['trust', 'itl']:
-                if x in status[2].lower():
-                    ITL = status[2]
-                    date = status[0]
-            if 'tftp' in status[2].lower():
-                TFTP = status[2]
-
-    return mac, model, ITL, TFTP, date
-
-
-
-if __name__ == "__main__":
-    phone = "10.99.70.213"
-    result = allDetails(ip=phone, model="8831")
-    print(result.ITL)

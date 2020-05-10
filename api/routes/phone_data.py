@@ -30,7 +30,7 @@ class RQ_Queue_Status(BaseModel):
   current_size: int
   started_count: int
 
-# Job Status Poll
+# Job Status Poll - called by VueJS to display Job Status page
 @router.get(
   '/jobstatus',
   summary="Displays job status and apscheduler state",
@@ -62,7 +62,7 @@ def get_state(*, token: str = Security(is_auth)):
   }
 
 
-# Trigger manual phone data update now
+# Trigger manual cucm phone sync update now - called by VueJS to trigger manual CUCM sync
 @router.get(
   '/poll_cucm_now',
   summary="Triggers manual poll of phone data",
@@ -74,7 +74,7 @@ async def get_poll_cucm_now(*, token: str = Security(is_auth), background_tasks:
     background_tasks.add_task(scheduler_phone_sync,manual=True)
   return {"Result": "phone sync update queued"}
 
-# Trigger manual phone data update now
+# Trigger manual phone scrape update now - called by VueJS to trigger manual phone scrape
 @router.get(
   '/initiate_phone_scrape_now',
   summary="Triggers manual run of phonescraper",
@@ -86,9 +86,7 @@ async def get_initiate_phone_scrape_now(*, token: str = Security(is_auth), backg
     background_tasks.add_task(scheduler_phonescrape_sync,manual=True)
   return {"Result": "phone sync update queued"}
 
-
-
-# Phone Data
+# Phone Info Data - called by VueJS to display Phone Info web page
 @router.get(
   '/info',
    summary="Displays phone data",
@@ -125,7 +123,7 @@ def get_phone_info(*, token: str = Security(is_auth)):
 
     return list_phone_schema_obj
 
-# Phone Data
+# Phone Scrape Data - called by VueJS to display phone scraper page
 @router.get(
   '/scraper',
    summary="Displays phone scraper",

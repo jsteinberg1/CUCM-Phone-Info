@@ -1,3 +1,7 @@
+# this converts Cisco model info to human friendly format
+
+## TODO this should be changed to pull this from CUCM DB via AXL to handle new models and changes over versions
+
 typemodel = { # run sql select enum, name from typemodel
     "15":"EMCC Base Phone",
     "20":"SCCP Phone",

@@ -9,10 +9,15 @@ from api.crud import settings_management as crud
 from lib.ciscoaxl.CUCM_AXL_API import CUCM_AXL_API
 
 class AXL_Objects:
+    """Class that stores AXL objects for CUCM cluster(s)
+    used by other functions in this application when AXL needs to be queried
+    """
     def __init__(self):
+        """Call load_clusters method to load AXL objects into memory"""
         self.load_clusters()
         
     def load_clusters(self):
+        """Load CUCM cluster(s) data from database and create AXL object for each cluster"""
         self.clusters = {}
 
         cucm_clusters = crud.get_cucm_clusters()

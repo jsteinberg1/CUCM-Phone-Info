@@ -7,11 +7,19 @@ logger = logging.getLogger('api')
 
 from api.models import phone_data as models
 from api.crud import phone_data as crud
-
 from api.scheduler import cisco_mapping
 
+from lib.ciscoaxl.CUCM_AXL_API import CUCM_AXL_API
+from lib.CUCM_Serviceability_API import CUCM_Serviceability_API
 
 def add_cucm_api_data_2_db(axl_phones_list, serviceability_phones_list, cluster_name):
+    """Adds data returned by CUCM API to database
+
+    Arguments:
+        axl_phones_list {list of AXL data} -- Data returned by AXL API
+        serviceability_phones_list {list of Serviceability API} -- Data returned by Serviceability API
+        cluster_name {string} -- Cluster friendly name, used to store name of cluster in database entry
+    """
            
     # Process AXL data into model class
     current_time = datetime.now()
@@ -95,13 +103,24 @@ def add_cucm_api_data_2_db(axl_phones_list, serviceability_phones_list, cluster_
     logger.debug(f"storing {cluster_name} data in database")
     crud.merge_phone_data(list_models_phone)
 
+def update_cucm(axl_ucm: CUCM_AXL_API, serviceability_ucm: CUCM_Serviceability_API, cluster_name: str):
+    """Runs update against CUCM AXL and Serviceability API
+    Retrieves data from APIs and passes data to add_cucm_api_data_2_db to save data in SQL DB
 
-def update_cucm(axl_ucm, serviceability_ucm, cluster_name):
+    Arguments:
+        axl_ucm {CUCM_AXL_API} -- Instantiated AXL object
+        serviceability_ucm {CUCM_Serviceability_API} -- Instantiated Serviceability object
+        cluster_name {str} -- Friendly name of cluster
 
+    Raises:
+        ValueError: returned if no data is retrieved from AXL
+    """
+
+    # Update JobStatus to indicate job started
     jobname=f"{cluster_name} cucm phone sync"
-
     crud.startjob(jobname=jobname)
-    
+
+    # Connect to AXL API, get all phones    
     logger.info(f"connecting to {cluster_name} AXL")
     try:
         axl_phones = axl_ucm.get_all_phones()
@@ -113,6 +132,7 @@ def update_cucm(axl_ucm, serviceability_ucm, cluster_name):
     if len(axl_phones) == 0:
         raise ValueError(f"No phones were retrieves from AXL, exiting CUCM update function")
 
+    # Connect to Serviceability API
     logger.info(f"connecting to {cluster_name} Serviceability API")
     try:
         mac_list = [i.name for i in axl_phones]  # get a list of only MAC addresses from AXL to use in Serviceability query
@@ -122,6 +142,7 @@ def update_cucm(axl_ucm, serviceability_ucm, cluster_name):
         logger.error(f"Serviceability error connecting to {cluster_name} - {str(sys.exc_info())}")
         raise (f"Serviceability error connecting to {cluster_name} - {str(sys.exc_info())}")
 
+    # Write AXL and Serviceability data to SQL DB
     logger.info(f"storing {cluster_name} data in database")
     try:
         add_cucm_api_data_2_db(axl_phones, serviceability_phones, cluster_name)
@@ -130,6 +151,7 @@ def update_cucm(axl_ucm, serviceability_ucm, cluster_name):
     else:
         logger.info("CUCM query & SQL update complete")
 
+    # Update JobStatus to indicate job finished
     crud.endjob(jobname=jobname)
 
 
