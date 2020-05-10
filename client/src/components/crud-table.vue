@@ -101,7 +101,7 @@
                         method: 'put',
                         url: this.endpoint+'/'+this.editedItem.id,
                         data: this.editedItem,
-                        timeout: 7500
+                        timeout: 45000
                     })
                     .then(function (response) {
                         vm.clusterChangeInProgress = false
@@ -129,7 +129,7 @@
                         method: 'post',
                         url: this.endpoint,
                         data: this.editedItem,
-                        timeout: 7500
+                        timeout: 45000
                     })
                     .then(function (response) {
                         
