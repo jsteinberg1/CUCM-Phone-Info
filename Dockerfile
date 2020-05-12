@@ -11,5 +11,3 @@ COPY ./client/dist /fastapi/client/dist
 COPY ./rq-workers /usr/src/workers
 
 ENV PYTHONPATH="/fastapi:${PYTHONPATH}"
-
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
