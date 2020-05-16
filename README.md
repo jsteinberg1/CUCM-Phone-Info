@@ -59,7 +59,7 @@ docker-compose up
 
 ## Known issues & limitations
 * phone scraper script isn't perfect - some models are not fully working (7940/7960, 7937, Codecs)
-* ITL status is populated based on the IP Phone webpage's 'status messages' page.  In some circumstances the phone will not have any recently reports of ITL status and therefore the ITL status is not reported.
+* ITL status is populated based on the IP Phone webpage's 'status messages' page.  Depending on the phone model and circumstances in the network/VOIP system, the phone may not have a ITL status listed on the 'status' page.  This could happen if the phone has not downloaded the ITL/trust list in a while (for whatever reason).  On initial run of the phonescraper within this application, you may have many phones that have a blank 'ITL' field.  This application only updates the status of the 'ITL' field when there is some valid ITL message on the 'status' page.  Assuming this application is left to run daily phonescrapes, over time the ITL value should become accurate, as this application will update the ITL field when it catches the phone's webpage reporting an ITL update (good or bad).  Alternatively, you could reset all phones from CUCM and then run a phonescrape and it should collect ITL on most phones as they should update their ITL status on their 'status' webpage after reset.
 * testing, has only been tested against CUCM 11.5
 * schema files need to be updated with 12.5
 * no redundancy for CUCM, if the CUCM node in the first cluster is down, logins will fail.
