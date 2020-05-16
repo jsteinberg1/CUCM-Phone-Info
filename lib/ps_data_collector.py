@@ -25,10 +25,12 @@ while True:
 
     f.write("***********************************************************************************\n")
     f.write(f"connecting to {url_to_scrape}\n")
+    f.write("***********************************************************************************\n")
 
     try:
         config_response = requests.request("GET", url_to_scrape, headers=headers, timeout=requests_time)
         f.write(config_response.text + "\n")
+        f.write("***********************************************************************************\n")
     except requests.exceptions.RequestException as e:  # This is the correct syntax
         print(f"unable to connect {e} - {url_to_scrape}")
         f.write(f"unable to connect to {url_to_scrape}\n")
