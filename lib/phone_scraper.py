@@ -44,13 +44,13 @@ def connect_to_phone(url: str):
     return response_text
 
 
-def regex_search_and_assign_if_match(attribute: str, regex_pattern: str, raw_source_text: str, phonescraper_object: PhoneScraper) -> PhoneScraper:
+def regex_search_and_assign_if_match(attribute: str, regex_pattern: str, raw_source_text: str, phonescraper_object: PhoneScraper, regex_group: int = 2) -> PhoneScraper:
     # use regex to search for regex_pattern in raw_source_text
     regex_search_result = re.search(regex_pattern, raw_source_text)
     
     if regex_search_result:
         try:
-            regex_result = regex_search_result.group(2).strip() # the value we want is in the second regex group match
+            regex_result = regex_search_result.group(regex_group).strip() # the value we want is in the second regex group match
             setattr(phonescraper_object, attribute, regex_result)  # assign value to attribute on phonescrape object
         except Exception as e:
             logger.error(f"Regex search failure for {attribute} using regex {regex_pattern} failed due to {e}")
@@ -90,10 +90,10 @@ def parse_standard_models(model: str, config_text: str, device_text: str, status
 
         phone_scrape_data = regex_search_and_assign_if_match('domain_name', '(Domain Name_\n_\n_|Domain name_|Domain Name_)([^(_| )]*)', config_text, phone_scrape_data)       
         phone_scrape_data = regex_search_and_assign_if_match('dhcp_server', '(DHCP Server_\n_\n_|DHCP server_|DHCP Server_)([^(_| )]*)', config_text, phone_scrape_data)             
-        phone_scrape_data = regex_search_and_assign_if_match('dhcp', '(DHCP Enabled_\n_\n_|DHCP_)([^(_| )]*)', config_text, phone_scrape_data)            
+        phone_scrape_data = regex_search_and_assign_if_match('dhcp', '(DHCP Enabled_\n_\n_|DHCP Enabled_|DHCP_)([^(_| )]*)', config_text, phone_scrape_data)            
         phone_scrape_data = regex_search_and_assign_if_match('ip_address', '(IP Address_\n_\n_|IP address_|IP Address_)([^(_| )]*)', config_text, phone_scrape_data)            
         phone_scrape_data = regex_search_and_assign_if_match('subnetmask', '(Subnet Mask_\n_\n_|Subnet mask_|Subnet Mask_)([^(_| )]*)', config_text, phone_scrape_data)              
-        phone_scrape_data = regex_search_and_assign_if_match('gateway', '(Default Router 1_\n_\n_|Default router_|Default Router 1_)([^(_| )]*)', config_text, phone_scrape_data)       
+        phone_scrape_data = regex_search_and_assign_if_match('gateway', '(Default Router 1_\n_\n_|Default router_|Default Router 1_|Default Router_)([^(_| )]*)', config_text, phone_scrape_data)       
         phone_scrape_data = regex_search_and_assign_if_match('dns1', '(DNS Server 1_\n_\n_|DNS server 1_|DNS Server 1_)([^(_| )]*)', config_text, phone_scrape_data)       
         phone_scrape_data = regex_search_and_assign_if_match('dns2', '(DNS Server 2_\n_\n_|DNS server 2_|DNS Server 2_)([^(_| )]*)', config_text, phone_scrape_data)       
         phone_scrape_data = regex_search_and_assign_if_match('alt_tftp', '(Alternate TFTP_\n_\n_|Alternate TFTP_)([^(_| )]*)', config_text, phone_scrape_data)       
@@ -110,11 +110,11 @@ def parse_standard_models(model: str, config_text: str, device_text: str, status
             phone_scrape_data = regex_search_and_assign_if_match('cucm4', '( Server 4_|Server 4 SRST_\n_\n_)([^(_| )]*)', config_text, phone_scrape_data)
             phone_scrape_data = regex_search_and_assign_if_match('cucm5', '( Server 5_)([^(_| )]*)', config_text, phone_scrape_data)
         else:
-            phone_scrape_data = regex_search_and_assign_if_match('cucm1', '(CUCM server1_|Unified CM 1_|CallManager 1_\n_\n_)([^(_| )]*)', config_text, phone_scrape_data)         
-            phone_scrape_data = regex_search_and_assign_if_match('cucm2', '(CUCM server2_|Unified CM 2_|CallManager 2_\n_\n_)([^(_| )]*)', config_text, phone_scrape_data)       
-            phone_scrape_data = regex_search_and_assign_if_match('cucm3', '(CUCM server3_|Unified CM 3_|CallManager 3_\n_\n_|CallManager 3 SRST_\n_\n_)([^(_| )]*)', config_text, phone_scrape_data)          
-            phone_scrape_data = regex_search_and_assign_if_match('cucm4', '(CUCM server4_|Unified CM 4_|CallManager 4_\n_\n_|CallManager 4 SRST_\n_\n_)([^(_| )]*)', config_text, phone_scrape_data)          
-            phone_scrape_data = regex_search_and_assign_if_match('cucm5', '(CUCM server5_|Unified CM 5_|CallManager 5_\n_\n_)([^(_| )]*)', config_text, phone_scrape_data)
+            phone_scrape_data = regex_search_and_assign_if_match('cucm1', '(CUCM server1|CUCM Server1|Unified CM 1|Unified CM1|CallManager 1|Call Manager 1)( SRST| TFTP)?(_\n_\n_|_)?([^(_| )]*)', config_text, phone_scrape_data, 4)         
+            phone_scrape_data = regex_search_and_assign_if_match('cucm2', '(CUCM server2|CUCM Server2|Unified CM 2|Unified CM2|CallManager 2|Call Manager 2)( SRST| TFTP)?(_\n_\n_|_)?([^(_| )]*)', config_text, phone_scrape_data, 4)       
+            phone_scrape_data = regex_search_and_assign_if_match('cucm3', '(CUCM server3|CUCM Server3|Unified CM 3|Unified CM3|CallManager 3|Call Manager 3)( SRST| TFTP)?(_\n_\n_|_)?([^(_| )]*)', config_text, phone_scrape_data, 4)          
+            phone_scrape_data = regex_search_and_assign_if_match('cucm4', '(CUCM server4|CUCM Server4|Unified CM 4|Unified CM4|CallManager 4|Call Manager 4)( SRST| TFTP)?(_\n_\n_|_)?([^(_| )]*)', config_text, phone_scrape_data, 4)          
+            phone_scrape_data = regex_search_and_assign_if_match('cucm5', '(CUCM server5|CUCM Server5|Unified CM 5|Unified CM5|CallManager 5|Call Manager 5)( SRST| TFTP)?(_\n_\n_|_)?([^(_| )]*)', config_text, phone_scrape_data, 4)
             
         # URL parser
         phone_scrape_data = regex_search_and_assign_if_match('info_url', '(Information URL_)([^(_| )]*)', config_text, phone_scrape_data)      
@@ -493,4 +493,9 @@ if __name__ == "__main__":
     phone_scrape_data = parse_ata187_model(model, device_text, network_text)
 
     pprint(vars(phone_scrape_data)) 
+    crud.merge_phonescraper_data(phone_scrape_data)
+
+    # Requests testing
+
+    phone_scrape_data = allDetails(ip = "163.118.100.119", model = "8811")
     crud.merge_phonescraper_data(phone_scrape_data)
