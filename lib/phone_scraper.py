@@ -54,6 +54,8 @@ def regex_search_and_assign_if_match(attribute: str, regex_pattern: str, raw_sou
             setattr(phonescraper_object, attribute, regex_result)  # assign value to attribute on phonescrape object
         except Exception as e:
             logger.error(f"Regex search failure for {attribute} using regex {regex_pattern} failed due to {e}")
+    else:
+        setattr(phonescraper_object, attribute, None)
 
     # return object
     return phonescraper_object
@@ -142,40 +144,20 @@ def parse_standard_models(model: str, config_text: str, device_text: str, status
 
     # ***** Network Parser *****
     if network_text != None:
-        phone_scrape_data = regex_search_and_assign_if_match('CDP_Neighbor_ID', '(Neighbor Device ID_\n_\n_|CDP Neighbor device ID_|CDP Neighbor Device ID_)([^(_| )]*)', network_text, phone_scrape_data)       
-        phone_scrape_data = regex_search_and_assign_if_match('CDP_Neighbor_IP', '(Neighbor IP Address_\n_\n_|CDP Neighbor IP address_|CDP Neighbor IP Address_)([^(_| )]*)', network_text, phone_scrape_data)       
-        phone_scrape_data = regex_search_and_assign_if_match('CDP_Neighbor_Port', '(Neighbor Port_\n_\n_|CDP Neighbor Port_|CDP Neighbor port_)([^_]*)', network_text, phone_scrape_data)       
-        phone_scrape_data = regex_search_and_assign_if_match('LLDP_Neighbor_ID', '(LLDP Neighbor Device ID_|LLDP Neighbor device ID_)([^(_| )]*)', network_text, phone_scrape_data)       
-        phone_scrape_data = regex_search_and_assign_if_match('LLDP_Neighbor_IP', '(LLDP Neighbor IP Address_|LLDP Neighbor IP address_)([^(_| )]*)', network_text, phone_scrape_data)       
-        phone_scrape_data = regex_search_and_assign_if_match('LLDP_Neighbor_Port', '(LLDP Neighbor Port_|LLDP Neighbor port_)([^(_| )]*)', network_text, phone_scrape_data)       
+        phone_scrape_data = regex_search_and_assign_if_match('CDP_Neighbor_ID', r'(Neighbor Device ID_\n_\n|CDP Neighbor device ID|CDP Neighbor Device ID)_(\w[^(_)]*)', network_text, phone_scrape_data)       
+        phone_scrape_data = regex_search_and_assign_if_match('CDP_Neighbor_IP', r'(Neighbor IP Address_\n_\n|CDP Neighbor IP address|CDP Neighbor IP Address|CDP Neighbor IPv4 Address)_(\w[^(_)]*)', network_text, phone_scrape_data)       
+        phone_scrape_data = regex_search_and_assign_if_match('CDP_Neighbor_Port', r'(Neighbor Port_\n_\n|CDP Neighbor Port|CDP Neighbor port)_(\w[^(_)]*)', network_text, phone_scrape_data)       
+        phone_scrape_data = regex_search_and_assign_if_match('LLDP_Neighbor_ID', r'(LLDP Neighbor Device ID|LLDP Neighbor device ID)_(\w[^(_)]*)', network_text, phone_scrape_data)       
+        phone_scrape_data = regex_search_and_assign_if_match('LLDP_Neighbor_IP', r'(LLDP Neighbor IP Address|LLDP Neighbor IP address|LLDP Neighbor IPv4 Address)_(\w[^(_)]*)', network_text, phone_scrape_data)       
+        phone_scrape_data = regex_search_and_assign_if_match('LLDP_Neighbor_Port', r'(LLDP Neighbor Port|LLDP Neighbor port)_(\w[^(_)]*)', network_text, phone_scrape_data)       
     
     # Status parser (includes ITL)
-    if status_text != None:
-        
-        errors = []
-        if phone_scrape_data.model != "":
-            if phone_scrape_data.model in ['7941', '7961', '7962', '7942']:
-                statuses = (re.findall(r'(\d{1,2}:..:..[ap]) ([^(_)]*)', status_text))
-                for status in statuses[-10:]:
-                    errors.append(status[0] + ' ' + status[1])
-                    for x in ['trust', 'itl']:
-                        if x in status[1].lower():
-                            phone_scrape_data.ITL =  status[1]
-            elif phone_scrape_data.model == '8831':
-                statuses = re.findall(r'[.{1,2}:..:..[ap] ..\/..\/..](\n)([^(_)]*)', status_text)
-                for status in statuses[-10:]:
-                    errors.append(status[0] + ' ' + status[1])
-                    for x in ['trust', 'itl']:
-                        if x in status[1].lower():
-                            phone_scrape_data.ITL =  status[1]
-            else:
-                statuses = re.findall(r'(..:..:...m ..\/..\/...)(\n)([^(_)]*)', status_text)
-                for status in statuses[-10:]:
-                    errors.append(status[0]+' '+status[2])
-                    for x in ['trust', 'itl']:
-                        if x in status[2].lower():
-                            phone_scrape_data.ITL =  status[2]
-            phone_scrape_data.status =  errors
+    if status_text != None:      
+        statuses = re.findall(r'[apmAPM\d:.,\-\/\[\] ]+[\n_ ]([^(_\n)]*)', status_text)
+        for status in statuses[-10:]:
+            for x in ['trust', 'itl']:
+                if x in status.lower():
+                    phone_scrape_data.ITL =  status
 
     # timestamp for last modified time
     phone_scrape_data.date_modified = datetime.now()
@@ -493,9 +475,4 @@ if __name__ == "__main__":
     phone_scrape_data = parse_ata187_model(model, device_text, network_text)
 
     pprint(vars(phone_scrape_data)) 
-    crud.merge_phonescraper_data(phone_scrape_data)
-
-    # Requests testing
-
-    phone_scrape_data = allDetails(ip = "163.118.100.119", model = "8811")
     crud.merge_phonescraper_data(phone_scrape_data)
