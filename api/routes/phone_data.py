@@ -194,22 +194,4 @@ def get_phone_scraper_info(*, token: str = Security(is_auth)):
     return list_phone_scraper_schema_obj
 
 
-class Device_Pool_List(BaseModel):
-  device_pool_list: List[str]
-
-@router.get(
-    '/device_pool_list',
-    response_model=Device_Pool_List,
-    summary="Device Pool List",
-    description="Returns a list of device pools from phone info table"
-    )
-async def get_device_pool_list(token: str = Security(is_auth)):
-  result = crud.get_device_pool_list()
-
-  device_pool_list = Device_Pool_List(device_pool_list=result)
-
-  return device_pool_list
-
-
-
 
