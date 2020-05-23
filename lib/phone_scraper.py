@@ -45,6 +45,20 @@ def connect_to_phone(url: str):
 
 
 def regex_search_and_assign_if_match(attribute: str, regex_pattern: str, raw_source_text: str, phonescraper_object: PhoneScraper, regex_group: int = 2) -> PhoneScraper:
+    """Regex search of BeautifulSoup text result.  If a match is found, store value in attribute in phonescraper_object
+
+    Arguments:
+        attribute {str} -- name of attribute to update
+        regex_pattern {str} -- regex search pattern to find data in beautifulsoup text
+        raw_source_text {str} -- beautifulsoup raw text
+        phonescraper_object {PhoneScraper} -- phone scraper object to store value
+
+    Keyword Arguments:
+        regex_group {int} -- number of regex group to use to store value. (default: {2})
+
+    Returns:
+        PhoneScraper -- returns updated phonescraper object
+    """
     # use regex to search for regex_pattern in raw_source_text
     regex_search_result = re.search(regex_pattern, raw_source_text)
     
