@@ -28,13 +28,14 @@
 import { HotTable } from '@handsontable/vue';
 
 export default {
-    name: 'Phone_Scraper',
+    name: 'Phone_Combined',
     data() {
         return {
             hotSettings: {
                 licenseKey: 'non-commercial-and-evaluation',
                 autoRowSize: false,
                 height: 600,
+                colHeaders: true,
                 autoColumnSize: true,
                 manualColumnResize: true,
                 manualColumnMove: true,
@@ -47,21 +48,43 @@ export default {
                 hiddenColumns: {
                     indicators: true
                     },
-                colHeaders: ['Name', 'Model', 'IPv4', 'Serial', 'Firmware', 'DN', 'kem1',  'kem2', 'Subnet', 'Gateway', 'DHCP', 'DHCP Server', 'Domain', 'DNS1', 
-                'DNS2', 'Alt TFTP', 'TFTP 1', 'TFTP 2', 'op_vlan', 'admin_vlan', 'CDP Host', 'CDP IP', 'CDP Port', 'LLDP Port', 'LLDP Port', 'LLDP Port',  'CUCM 1', 
-                'CUCM 2', 'CUCM 3', 'CUCM 4', 'CUCM 5', 'Info URL', 'Dir URL', 'SVC URL', 'IDLR URL', 'Info URL Time', 'Proxy URL', 'Auth URL', 'TVS', 'ITL', 
-                'Last Scraped'
+                nestedHeaders: [
+                    [
+                        "",
+                        {label: 'CUCM API', colspan: 13},
+                        {label: 'Phone Scraper', colspan: 40}
+                    ],
+                    [
+                        'Name', 'Description', 'Device Pool', 'Device CSS', 'Model', 'First Seen', 'Last Seen', 'Reg Time',
+                        'IPv4', 'Firmware', 'Cluster', 'Protocol', 'EM Profile', 'EM Login Time',
+                        'Serial', 'Firmware', 'DN', 'Model', 'kem1',  'kem2', 'IP Addr', 'Subnet', 'Gateway', 'DHCP', 'DHCP Server', 'Domain', 'DNS1', 
+                        'DNS2', 'Alt TFTP', 'TFTP 1', 'TFTP 2', 'op_vlan', 'admin_vlan', 'CDP Host', 'CDP IP', 'CDP Port', 'LLDP Port', 'LLDP Port', 'LLDP Port',  'CUCM 1', 
+                        'CUCM 2', 'CUCM 3', 'CUCM 4', 'CUCM 5', 'Info URL', 'Dir URL', 'SVC URL', 'IDLR URL', 'Info URL Time', 'Proxy URL', 'Auth URL', 'TVS', 'ITL', 
+                        'Last Scraped'
+                    ]
                 ],
                 columns: [
-                    {data: "devicename",  readOnly: true},
+                    {data: "dname",  readOnly: true},
+                    {data: "descr",  readOnly: true},
+                    {data: "dpool",  readOnly: true},
+                    {data: "dcss",  readOnly: true},
                     {data: "model",  readOnly: true},
-                    {data: "ip_address",  readOnly: true},
-
+                    {data: "fdate",  readOnly: true},
+                    {data: "ldate",  readOnly: true},
+                    {data: "regstamp",  readOnly: true},
+                    {data: "ipv4",  readOnly: true},
+                    {data: "fw",  readOnly: true},
+                    {data: "cluster",  readOnly: true},
+                    {data: "prot",  readOnly: true},
+                    {data: "em_profile",  readOnly: true},
+                    {data: "em_time",  readOnly: true},
                     {data: "sn",  readOnly: true},
                     {data: "firmware",  readOnly: true},
                     {data: "dn",  readOnly: true},
+                    {data: "model",  readOnly: true},
                     {data: "kem1",  readOnly: true},
                     {data: "kem2",  readOnly: true},
+                    {data: "ip_address",  readOnly: true},
                     {data: "subnetmask",  readOnly: true},
                     {data: "gateway",  readOnly: true},
                     {data: "dhcp",  readOnly: true},
@@ -94,8 +117,9 @@ export default {
                     {data: "auth_url",  readOnly: true},
                     {data: "tvs",  readOnly: true},
                     {data: "ITL",  readOnly: true},
-                    {data: "date_modified",  readOnly: true},
-                ]
+                    {data: "last_scraped",  readOnly: true},
+                ],
+ 
             },
             rowData: [],
             loadingData: false
@@ -132,8 +156,8 @@ export default {
             
             this.$http({
                 method: 'get',
-                url: '/phonedata/scraper',
-                timeout: 60000
+                url: '/phonedata/allschema',
+                timeout: 120000
             })
             .then(function (response) {
                 

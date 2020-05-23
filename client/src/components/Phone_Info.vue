@@ -41,8 +41,12 @@ export default {
                 fixedColumnsLeft: 1,
                 manualColumnFreeze: true,
                 filters: true,
-                dropdownMenu: ['remove_col', 'filter_by_condition', 'filter_action_bar'],
                 columnSorting: true,
+                dropdownMenu: ['filter_by_condition'],
+                contextMenu: ['alignment', 'hidden_columns_hide', 'hidden_columns_show'],
+                hiddenColumns: {
+                    indicators: true
+                    },
                 colHeaders: ['Name', 'Pool', 'CSS', 'Description', 'Firmware', 'IPv4', 'Protocol', 'Model',
                     'First Seen', 'Last Seen', 'Regstamp', 'Cluster', 'EM Profile', 'EM Time'
                 ],
