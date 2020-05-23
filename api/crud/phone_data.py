@@ -64,6 +64,16 @@ def merge_phonescraper_data(phonescraper_data: models.PhoneScraper, db: Session 
     db.commit()
     db.close()
 
+
+def merge_phonescraper_data_list(scraper_list: List[models.PhoneScraper], db: Session = SessionLocal()):
+    """update models.Phone with list of models"""
+
+    for scraped_data in scraper_list:
+        db.merge(scraped_data)
+    
+    db.commit()
+    db.close()
+
 # Job Status
 
 def startjob(jobname: str, db: Session = SessionLocal()):

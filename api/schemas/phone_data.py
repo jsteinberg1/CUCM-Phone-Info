@@ -70,3 +70,47 @@ class PhoneScraper(BaseModel):
     LLDP_Neighbor_Port: str = None
     ITL: str = None
     date_modified: str = None
+
+
+class Phone_Cucm_Scraper_Combined(PhoneInfo):
+    sn: str = None
+    firmware: str = None
+    dn: str = None
+    model: str = None
+    kem1: str = None
+    kem2: str = None
+    domain_name: str = None
+    dhcp_server: str = None
+    dhcp: str = None
+    ip_address: str = None
+    subnetmask: str = None
+    gateway: str = None
+    dns1: str = None
+    dns2: str = None
+    alt_tftp: str = None
+    tftp1: str = None
+    tftp2: str = None
+    op_vlan: str = None
+    admin_vlan: str = None
+    cucm1: str = None
+    cucm2: str = None
+    cucm3: str = None
+    cucm4: str = None
+    cucm5: str = None
+    info_url: str = None
+    dir_url: str = None
+    msg_url: str = None
+    svc_url: str = None
+    idle_url: str = None
+    info_url_time: str = None
+    proxy_url: str = None
+    auth_url: str = None
+    tvs: str = None
+    CDP_Neighbor_ID: str = None
+    CDP_Neighbor_IP: str = None
+    CDP_Neighbor_Port: str = None
+    LLDP_Neighbor_ID: str = None
+    LLDP_Neighbor_IP: str = None
+    LLDP_Neighbor_Port: str = None
+    ITL: str = None
+    last_scraped: str = None
