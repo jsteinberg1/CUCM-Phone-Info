@@ -91,7 +91,4 @@ for count in range(number_of_fake_phones):
 
 # Add Phone models list to database
 crud.merge_phone_data(model_phone_list)
-
-# Add Phonescrape model items (individual DB add due to RQ worker) to database
-for item in model_phonescraper_list:
-    crud.merge_phonescraper_data(item)
+crud.merge_phonescraper_data_list(model_phonescraper_list)
