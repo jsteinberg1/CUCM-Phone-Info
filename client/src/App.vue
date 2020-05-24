@@ -33,9 +33,10 @@ import Login from './components/auth/Login.vue'
 import MainNavbar from './components/MainNavbar.vue'
 import IdleTimeout from '@/components/Idle_Timeout.vue'
 
-import Phone_Info from '@/components/Phone_Info.vue'
-import Phone_Scraper from '@/components/Phone_Scraper.vue'
-import Phone_Combined from '@/components/Phone_Combined.vue'
+// import Phone_Info from '@/components/Phone_Info.vue'
+// import Phone_Scraper from '@/components/Phone_Scraper.vue'
+
+import Phone_Info from '@/components/Phone_Combined.vue'
 import Settings_Management from '@/components/Settings_Management.vue'
 import Job_Status from '@/components/Job_Status.vue'
 
@@ -44,7 +45,7 @@ export default {
   name: 'App',
   data () {
     return {
-      MenuTabs: ["Phone Info", "Phone Scraper", "Phone Combined", "Settings Management", "Job Status"],
+      MenuTabs: ["Phone Info", "Settings Management", "Job Status"],
       NavSelection: "",
     }
   },
@@ -53,8 +54,6 @@ export default {
     Login,
     MainNavbar,
     Phone_Info,
-    Phone_Scraper,
-    Phone_Combined,
     Settings_Management,
     Job_Status,
     IdleTimeout
