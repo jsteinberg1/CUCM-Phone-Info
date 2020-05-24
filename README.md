@@ -12,9 +12,7 @@ The key features are:
 ## Screenshots
 
 ### Phone Info Page
-![Phone Info](.github/phoneinfo.jpg)
-### Phone Scraper Page
-![Phone Scraper](.github/phonescraper.jpg)
+![Phone Info](.github/phoneinfo.png)
 ### Settings Page
 ![Settings](.github/settings.jpg)
 ### Job Status Page
