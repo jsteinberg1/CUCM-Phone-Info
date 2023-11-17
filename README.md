@@ -1,3 +1,7 @@
+# This project is no longer being maintained
+
+***
+
 # Cisco VOIP Phone Info Web Application Server 
 The VOIP Phone Info server is a application that collects IP phone data from your Cisco VOIP environment.
 
