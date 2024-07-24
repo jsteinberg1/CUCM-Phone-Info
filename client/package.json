@@ -15,7 +15,7 @@
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.9.0",
     "core-js": "^3.6.4",
-    "handsontable": "^7.4.2",
+    "handsontable": "^10.0.0",
     "idle-vue": "^2.0.5",
     "vue": "^2.6.11",
     "vue-property-decorator": "^8.4.1",
